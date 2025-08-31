@@ -1,7 +1,6 @@
 # app.py
 import streamlit as st
 import random
-import time
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -14,11 +13,11 @@ def seed_logs():
     if "logs" not in st.session_state:
         st.session_state["logs"] = []
         sample = [
-            {"username":"rahul","device":"Trusted Device","location":"Ujjain","ip":"103.23.12.5",
+            {"timestamp":"2025-08-01 09:23:00","username":"rahul","device":"Trusted Device","location":"Ujjain","ip":"103.23.12.5",
              "amount":250,"time":"09:23","typing":85,"pattern":"consistent","network":"normal","risk":22,"status":"GRANTED","reason":"Low-risk"},
-            {"username":"sara","device":"New Device","location":"Delhi","ip":"89.12.98.1",
+            {"timestamp":"2025-08-01 02:12:00","username":"sara","device":"New Device","location":"Delhi","ip":"89.12.98.1",
              "amount":15000,"time":"02:12","typing":42,"pattern":"erratic","network":"proxy","risk":78,"status":"BLOCKED","reason":"Unusual location + high amount"},
-            {"username":"amit","device":"Suspicious Device","location":"Ujjain","ip":"103.23.12.5",
+            {"timestamp":"2025-08-01 23:50:00","username":"amit","device":"Suspicious Device","location":"Ujjain","ip":"103.23.12.5",
              "amount":5000,"time":"23:50","typing":55,"pattern":"slower","network":"normal","risk":48,"status":"VERIFY","reason":"New device + odd hour"},
         ]
         st.session_state["logs"].extend(sample)
@@ -47,7 +46,7 @@ def compute_risk(params):
     elif params["amount"] > 5000:
         score += 6
     # login time (odd hours)
-    if params["login_hour"] < 6 or params["login_hour"] > 1:  # assume 2 AM - 5 AM odd
+    if params["login_hour"] < 6 or params["login_hour"] > 23:
         if not params["usual_hours"]:
             score += 10
     # frequency (if many tx in short time) - simulated flag
@@ -176,15 +175,15 @@ if mode == "User (Simulate Transaction)":
 
             st.info("Note: This is a demo simulation. Real system will capture signals silently and with privacy.")
 
-if mode == "Admin Dashboard":
+elif mode == "Admin Dashboard":
     st.header("Admin — Control Room / Fraud Monitoring Console")
     logs = st.session_state.get("logs", [])
     df = pd.DataFrame(logs)
     # metrics
     total = len(df)
-    blocked = df[df["status"] == "BLOCKED"].shape[0]
-    verify = df[df["status"] == "VERIFY"].shape[0]
-    granted = df[df["status"] == "GRANTED"].shape[0]
+    blocked = df[df["status"] == "BLOCKED"].shape[0] if not df.empty else 0
+    verify = df[df["status"] == "VERIFY"].shape[0] if not df.empty else 0
+    granted = df[df["status"] == "GRANTED"].shape[0] if not df.empty else 0
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Attempts", total)
@@ -243,10 +242,10 @@ if mode == "Admin Dashboard":
         with open("vibeid_logs.csv","rb") as f:
             st.download_button("Download CSV", data=f, file_name="vibeid_logs.csv", mime="text/csv")
 
-if mode == "About / Readme":
+else:
     st.header("About VibeID Prototype")
-    st.markdown("""
-**VibeID** is a demo prototype for Hackathon PS-09: *AI Model for Flagging Suspicious Transactions*.
+    st.markdown(
+        """**VibeID** is a demo prototype for Hackathon PS-09: AI Model for Flagging Suspicious Transactions.
 
 This prototype demonstrates:
 - Behavioral & contextual signal capture (simulated).
@@ -254,6 +253,19 @@ This prototype demonstrates:
 - Admin dashboard with logs, metrics & charts.
 - OTP flow for medium-risk transactions (simulated).
 
-**How to deploy**
+How to deploy:
 1. Push this `app.py` to a GitHub repo.
-2. Add `requirements.txt`:
+2. Add `requirements.txt` containing:
+   streamlit
+   matplotlib
+   pandas
+   numpy
+3. Connect repo to Streamlit Cloud (https://share.streamlit.io) and deploy.
+
+Notes:
+- This is a simulation for demo. Real system will rely on real signals (keystroke streams, device fingerprinting, secure telemetry) and privacy-preserving storage.
+- Admin and user interfaces will be separated in production with secure APIs and access control.
+
+Contact: Atharva Dubey — Team VibeID
+"""
+        )
