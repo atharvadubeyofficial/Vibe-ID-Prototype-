@@ -249,18 +249,10 @@ else:
 
 This prototype demonstrates:
 - Behavioral & contextual signal capture (simulated).
-- Real-time risk scoring & decisioning.
+- Real-time risk scoring & decisioning basrd on ML Engine
 - Admin dashboard with logs, metrics & charts.
 - OTP flow for medium-risk transactions (simulated).
 
-How to deploy:
-1. Push this `app.py` to a GitHub repo.
-2. Add `requirements.txt` containing:
-   streamlit
-   matplotlib
-   pandas
-   numpy
-3. Connect repo to Streamlit Cloud (https://share.streamlit.io) and deploy.
 
 Notes:
 - This is a simulation for demo. Real system will rely on real signals (keystroke streams, device fingerprinting, secure telemetry) and privacy-preserving storage.
